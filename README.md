@@ -1,1 +1,2 @@
 # JVSL_JobOpenings
+VRChatワールド用の求人データを配信するリポジトリ
