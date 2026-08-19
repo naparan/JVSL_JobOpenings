@@ -1,16 +1,24 @@
-import requests, json
+import os, json, requests
 from dotenv import load_dotenv
-import os
-import sys
-load_dotenv()
-sys.stdout.reconfigure(encoding="utf-8")
-FORUM_ID = os.getenv("FORUM_ID")
-FORUM_URL = os.getenv("FORUM_URL")
-TOKEN = os.getenv("TOKEN")
+load_dotenv(override=True)
+TOKEN = os.environ["DISCORD_TOKEN"]
+GUILD_ID = "1034068769343033344"
+FORUM_ID = "1537837461562982493"
 
-H = {"Authorization" : f"Bot {TOKEN}"}
-r = requests.get(FORUM_URL, headers=H)
+H = {"Authorization": f"Bot {TOKEN}"}
+url = f"https://discord.com/api/v10/guilds/{GUILD_ID}/threads/active"
+
+r = requests.get(url, headers=H)
+r.raise_for_status()          # 失敗したらここで止まる
 data = r.json()
 
-threads = [t for t in data["threads"] if t["parent_id"] == FORUM_ID]
-for t in threads: print(t["name"])
+jobs = [
+    {"id": t["id"], "title": t["name"]}
+    for t in data["threads"]
+    if t["parent_id"] == FORUM_ID
+]
+
+with open("jobs.json", "w", encoding="utf-8") as f:
+    json.dump({"jobs": jobs}, f, ensure_ascii=False, indent=2)
+
+print(f"{len(jobs)} jobs written")
